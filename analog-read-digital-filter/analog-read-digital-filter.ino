@@ -11,7 +11,6 @@ int T2 = 5;
 void setup() {
   // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);
-  Serial.println(0);Serial.println(600); 
 }
 
 // the loop routine runs over and over again forever:
@@ -19,6 +18,9 @@ void loop() {
   // read the input on analog pin 0:
   u[0] = analogRead(A0);
 
+  // P with Kp = 1
+  // y[0] = u[0];
+  
   // smooth values using a PT1, useful when observing PWM output
   y[0] = (int)(T1/(T1+TA)*y[1]+TA/(T1+TA)*u[0]);
 
@@ -32,5 +34,6 @@ void loop() {
   y[1]=y[0];
   u[2]=u[1];
   u[1]=u[0];
+  
   delay(1);        // delay in between reads for stability
 }
