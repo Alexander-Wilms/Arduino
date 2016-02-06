@@ -224,7 +224,7 @@ float calcAltitude(float pressure)
 {
   // international barometric formula
   // https://de.wikipedia.org/wiki/Barometrische_H%C3%B6henformel#Internationale_H.C3.B6henformel
-  return (float)288.15/0.0065 * (1 - pow(((float) pressure/p0), 1/5.255));
+  return (float)288.15/0.0065 * (1 - pow(((float) pressure/p0), (float)1/5.255));
 }
 
 
