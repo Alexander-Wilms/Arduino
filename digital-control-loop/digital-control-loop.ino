@@ -24,7 +24,7 @@ void loop() {
 
   // Sollgröße messen
   w = analogRead(wPin);
-  
+
   // Stellgröße messen
   x = analogRead(xPin);
 

@@ -9,12 +9,12 @@
  *  license: CC bY-SA v3.oss - http://creativecommons.org/licenses/by-sa/3.oss/
  */
 
-// Connections:
-// BMP085   Arduino
-// VCC      3.3V
-// GND      GND
-// SCL      A5
-// SDA      A4
+ // Connections:
+ // BMP180   Arduino
+ // VCC      3.3V
+ // GND      GND
+ // SCL      SCL
+ // SDA      SDA
 
 // I2C library
 #include <Wire.h>
@@ -28,19 +28,19 @@
 
 // calibration coefficients (2 bytes each)
 short ac1;
-short ac2; 
-short ac3; 
+short ac2;
+short ac3;
 unsigned short ac4;
 unsigned short ac5;
 unsigned short ac6;
-short b1; 
+short b1;
 short b2;
 short mb;
 short mc;
 short md;
 
 // b5 is calculated in calcTrueTemp(), this variable is also used in calcTruePress()
-long b5; 
+long b5;
 
 float temperature;
 float pressure;
@@ -58,13 +58,13 @@ void loop()
 {
   // read uncompensated temperature value
   temperature = readUncompTemp();
-  
+
   // read uncompensated pressure value
   pressure = readUncompPress();
 
   // calculate true pressure (in 0.1 deg C)
   temperature = calcTrueTemp(temperature);
-  
+
   // calculate true pressure (in Pa)
   pressure = calcTruePress(pressure);
 
@@ -78,7 +78,7 @@ void loop()
   Serial.print(" hPa, ");
   Serial.print(altitude);
   Serial.println(" m");
-  
+
   delay(1000);
 }
 
@@ -102,16 +102,16 @@ void calibrate()
 long readUncompTemp()
 {
   long uncompensatedTemperature;
-  
+
   // write 0x2E into register 0xF4
   Wire.beginTransmission(bmp180_address);
   Wire.write(0xF4);
   Wire.write(0x2E);
   Wire.endTransmission();
-  
+
   // wait at least 4.5ms
   delay(5);
-  
+
   // read registers 0xF6 (MSB) and 0xF7 (LSB)
   uncompensatedTemperature = bmp180Read2bytes(0xF6);
   return uncompensatedTemperature;
@@ -121,31 +121,31 @@ long readUncompPress()
 {
   unsigned char MSB, LSB, XLSB;
   long uncompensatedPressure = oss;
-  
+
   Wire.beginTransmission(bmp180_address);
   Wire.write(0xF4);
   Wire.write(0x34);
   Wire.endTransmission();
-  
+
   // wait for conversion, delay time dependent on oss
   delay(5);
-  
+
   // read register 0xF6 (MSB), 0xF7 (LSB), and 0xF8 (XLSB)
   Wire.beginTransmission(bmp180_address);
   Wire.write(0xF6);
   Wire.endTransmission();
   Wire.requestFrom(bmp180_address, 3);
-  
+
   // wait for data to become available
   while(Wire.available() < 3)
     ;
-    
+
   MSB = Wire.read();
   LSB = Wire.read();
   XLSB = Wire.read();
-  
+
   uncompensatedPressure = (((unsigned long) MSB << 16) | ((unsigned long) LSB << 8) | (unsigned long) XLSB) >> (8);
-  
+
   return uncompensatedPressure;
 }
 
@@ -157,39 +157,39 @@ short calcTrueTemp(unsigned int uncompensatedTemperature)
   x2 = ((long)mc << 11)/(x1 + md);
   b5 = x1 + x2;
 
-  return ((b5 + 8)>>4);  
+  return ((b5 + 8)>>4);
 }
 
 long calcTruePress(unsigned long uncompensatedPressure)
 {
   long x1, x2, x3, b3, b6, p;
   unsigned long b4, b7;
-  
+
   b6 = b5 - 4000;
-  
+
   // Calculate b3
   x1 = (b2 * (b6 * b6)>>12)>>11;
   x2 = (ac2 * b6)>>11;
   x3 = x1 + x2;
   b3 = (((((long)ac1)*4 + x3)<<oss) + 2)>>2;
-  
+
   // Calculate b4
   x1 = (ac3 * b6)>>13;
   x2 = (b1 * ((b6 * b6)>>12))>>16;
   x3 = ((x1 + x2) + 2)>>2;
   b4 = (ac4 * (unsigned long)(x3 + 32768))>>15;
-  
+
   b7 = ((unsigned long)(uncompensatedPressure - b3) * (50000>>oss));
   if (b7 < 0x80000000)
     p = (b7<<1)/b4;
   else
     p = (b7/b4)<<1;
-    
+
   x1 = (p>>8) * (p>>8);
   x1 = (x1 * 3038)>>16;
   x2 = (-7357 * p)>>16;
   p += (x1 + x2 + 3791)>>4;
-  
+
   return p;
 }
 
@@ -197,15 +197,15 @@ long calcTruePress(unsigned long uncompensatedPressure)
 char bmp180Readbyte(unsigned char address)
 {
   unsigned char data;
-  
+
   Wire.beginTransmission(bmp180_address);
   Wire.write(address);
   Wire.endTransmission();
-  
+
   Wire.requestFrom(bmp180_address, 1);
   while(!Wire.available())
     ;
-    
+
   return Wire.read();
 }
 
@@ -213,17 +213,17 @@ char bmp180Readbyte(unsigned char address)
 int bmp180Read2bytes(unsigned char address)
 {
   unsigned char MSB, LSB;
-  
+
   Wire.beginTransmission(bmp180_address);
   Wire.write(address);
   Wire.endTransmission();
-  
+
   Wire.requestFrom(bmp180_address, 2);
   while(Wire.available()<2)
     ;
   MSB = Wire.read();
   LSB = Wire.read();
-  
+
   return (int) MSB<<8 | LSB;
 }
 
@@ -233,5 +233,3 @@ float calcAltitude(float pressure)
   // https://de.wikipedia.org/wiki/Barometrische_H%C3%B6henformel#Internationale_H.C3.B6henformel
   return (float)288.15/0.0065 * (1 - pow(((float) pressure/p0), (float)1/5.255));
 }
-
-

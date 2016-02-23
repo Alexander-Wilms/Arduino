@@ -16,7 +16,7 @@ void setup() {
 
 void loop() {
   t1 = millis();
-  
+
   digitalWrite(Trig, HIGH);
   delay(1);
   digitalWrite(Trig, LOW);

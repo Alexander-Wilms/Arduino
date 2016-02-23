@@ -20,20 +20,20 @@ void loop() {
 
   // P with Kp = 1
   // y[0] = u[0];
-  
+
   // smooth values using a PT1, useful when observing PWM output
   y[0] = (int)(T1/(T1+TA)*y[1]+TA/(T1+TA)*u[0]);
 
   // PT2
   // y[0]=(u[0]-(T1*T2)*(-y[1]+y[2])-(T1+T2)*(-y[1]))/(T1*T2+(T1+T2)+TA*TA);
-  
+
   // print out the value you read:
   Serial.println(y[0]);
-  
+
   y[2]=y[1];
   y[1]=y[0];
   u[2]=u[1];
   u[1]=u[0];
-  
+
   delay(1);        // delay in between reads for stability
 }

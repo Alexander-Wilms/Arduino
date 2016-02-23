@@ -30,7 +30,7 @@ void loop() {
   {
     color = Serial.read();
   }
-    
+
   int val = analogRead(A0);
   switch(color){
     case 'r':
