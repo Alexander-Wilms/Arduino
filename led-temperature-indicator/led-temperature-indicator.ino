@@ -73,24 +73,14 @@ void loop()
   // calculate true pressure (in 0.1 deg C)
   temperature = calcTrueTemp(temperature);
 
-  // calculate true pressure (in Pa)
-  pressure = calcTruePress(pressure);
-
-  // calculate absolute altitude (in m)
-  altitude = calcAltitude(pressure);
-
   // display temperature and pressure value
   Serial.print(temperature/10);
-  Serial.print(" deg C, ");
-  Serial.print(pressure/100);
-  Serial.print(" hPa, ");
-  Serial.print(altitude);
-  Serial.println(" m");
+  Serial.println(" deg C, ");
 
-  analogWrite(9,255-map(temperature/10, 25, 30, 0, 255));
-  analogWrite(10,map(temperature/10, 25, 30, 0, 255));
+  analogWrite(9,255-map(temperature, 250, 300, 0, 255));
+  analogWrite(10,map(temperature, 250, 300, 0, 255));
 
-  delay(1000);
+  delay(100);
 }
 
 void calibrate()
