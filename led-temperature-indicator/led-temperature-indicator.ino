@@ -26,6 +26,9 @@
 // pressure at sea level
 #define p0 101325
 
+char color = 0;
+int rgb[3];
+
 // calibration coefficients (2 bytes each)
 short ac1;
 short ac2; 
@@ -48,6 +51,11 @@ float altitude;
 
 void setup()
 {
+  pinMode(2, OUTPUT); // Only needed to power the LED, since I don't have a breadboard and thus can't connect two in parallel devices to the 3.3V pin
+  digitalWrite(2,HIGH);
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
   Serial.begin(9600);
   Wire.begin();
   // read calibration data from the EEPROM of the bMP180
@@ -78,6 +86,9 @@ void loop()
   Serial.print(" hPa, ");
   Serial.print(altitude);
   Serial.println(" m");
+
+  analogWrite(9,255-map(temperature/10, 25, 30, 0, 255));
+  analogWrite(10,map(temperature/10, 25, 30, 0, 255));
   
   delay(1000);
 }
