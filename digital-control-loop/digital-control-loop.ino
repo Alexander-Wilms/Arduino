@@ -28,21 +28,21 @@ void loop() {
   t_alt = millis();
 
   // Sollgröße messen
-  w = analogRead(wPin);
+  // w = analogRead(wPin);
   // Sollgröße vorgeben
-  // if(millis()>1000)
-    // w = 1000;
+  if(millis()>1000)
+    w = 1000;
   //Serial.print("w ");
   Serial.print(w);
 
   // Stellgröße messen
-  x = analogRead(xPin);
+  // x = analogRead(xPin);
   // Drift verhindern
   if(x<5)
     x = 0;
   // simulierte Strecke: PT1-Algorithmus
-  // x_alt = x;
-  // x = 0.95*x_alt+0.05*y;
+  x_alt = x;
+  x = 0.95*x_alt+0.05*y;
   //Serial.print(" x ");
   Serial.print(",");
   Serial.print(x);
