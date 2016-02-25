@@ -15,6 +15,6 @@ sys = 1 / (1+a*s)
 bodemag(sys)
 hold on
 semilogx(w,y,'r');
-f_eck=1/(R*C); %Eckfrequenz
+f_eck=1/(R*C); % Eckfrequenz
 hold on
 line([f_eck f_eck], get(gca,'YLim'))

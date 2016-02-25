@@ -49,6 +49,7 @@ float altitude;
 void setup()
 {
   Serial.begin(9600);
+  // join the bus as a master, since we don't specify an address
   Wire.begin();
   // read calibration data from the EEPROM of the bMP180
   calibrate();
@@ -82,6 +83,50 @@ void loop()
   delay(1000);
 }
 
+// read 1 byte from the bmp180 at 'address'
+char bmp180Readbyte(unsigned char address)
+{
+  unsigned char data;
+
+  // send address of the slave device we want to talk to 
+  Wire.beginTransmission(bmp180_address);
+  // queue 1 byte for transmission
+  // it's the memory address we want to read from
+  Wire.write(address);
+  // transmit queued byte
+  Wire.endTransmission();
+
+  // request 1 byte from slave device
+  Wire.requestFrom(bmp180_address, 1);
+  // wait for byte to be received from the slave
+  while(!Wire.available())
+    ;
+
+  // return received byte
+  return Wire.read();
+}
+
+// read 2 bytes from the bmp180
+int bmp180Read2bytes(unsigned char address)
+{
+  unsigned char MSB, LSB;
+
+  Wire.beginTransmission(bmp180_address);
+  Wire.write(address);
+  Wire.endTransmission();
+
+  Wire.requestFrom(bmp180_address, 2);
+  // wait for 2 bytes to be received
+  while(Wire.available()<2)
+    ;
+
+  // store the queued bytes
+  MSB = Wire.read();
+  LSB = Wire.read();
+
+  return (int) MSB<<8 | LSB;
+}
+
 void calibrate()
 {
   // read uncompensatedTemperature EEPROM registers, 16 bit, MSB first
@@ -92,11 +137,11 @@ void calibrate()
   ac4 = bmp180Read2bytes(0xb0);
   ac5 = bmp180Read2bytes(0xb2);
   ac6 = bmp180Read2bytes(0xb4);
-  b1 = bmp180Read2bytes(0xb6);
-  b2 = bmp180Read2bytes(0xb8);
-  mb = bmp180Read2bytes(0xbA);
-  mc = bmp180Read2bytes(0xbC);
-  md = bmp180Read2bytes(0xbE);
+  b1  = bmp180Read2bytes(0xb6);
+  b2  = bmp180Read2bytes(0xb8);
+  mb  = bmp180Read2bytes(0xbA);
+  mc  = bmp180Read2bytes(0xbC);
+  md  = bmp180Read2bytes(0xbE);
 }
 
 long readUncompTemp()
@@ -136,7 +181,7 @@ long readUncompPress()
   Wire.endTransmission();
   Wire.requestFrom(bmp180_address, 3);
 
-  // wait for data to become available
+  // wait for the 3 bytes to become available
   while(Wire.available() < 3)
     ;
 
@@ -191,40 +236,6 @@ long calcTruePress(unsigned long uncompensatedPressure)
   p += (x1 + x2 + 3791)>>4;
 
   return p;
-}
-
-// Read 1 byte from the bmp180 at 'address'
-char bmp180Readbyte(unsigned char address)
-{
-  unsigned char data;
-
-  Wire.beginTransmission(bmp180_address);
-  Wire.write(address);
-  Wire.endTransmission();
-
-  Wire.requestFrom(bmp180_address, 1);
-  while(!Wire.available())
-    ;
-
-  return Wire.read();
-}
-
-// read 2 bytes from the bmp180
-int bmp180Read2bytes(unsigned char address)
-{
-  unsigned char MSB, LSB;
-
-  Wire.beginTransmission(bmp180_address);
-  Wire.write(address);
-  Wire.endTransmission();
-
-  Wire.requestFrom(bmp180_address, 2);
-  while(Wire.available()<2)
-    ;
-  MSB = Wire.read();
-  LSB = Wire.read();
-
-  return (int) MSB<<8 | LSB;
 }
 
 float calcAltitude(float pressure)
