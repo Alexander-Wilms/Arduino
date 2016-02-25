@@ -17,9 +17,9 @@ int c2 = 3;
 void setup() {
   Serial.begin(9600);
   pinMode(wPin, INPUT);
+  pinMode(wOutPin, OUTPUT);
   pinMode(xPin, INPUT);
   pinMode(yPin, OUTPUT);
-  pinMode(wOutPin, OUTPUT);
   analogWrite(wOutPin, 100);
 }
 
@@ -31,9 +31,9 @@ void loop() {
   // w = analogRead(wPin);
   // Sollgröße vorgeben
   if(millis()>1000)
-    w = 1000;
-  //Serial.print("w ");
-  Serial.print(w);
+    digitalWrite(wOutPin,HIGH);
+  // Serial.print("w ");
+  // Serial.print(w);
 
   // Stellgröße messen
   // x = analogRead(xPin);

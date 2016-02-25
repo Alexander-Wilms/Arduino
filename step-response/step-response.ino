@@ -6,12 +6,13 @@ float tau = R*C;
 
 void setup() {
    Serial.begin(9600);
-   pinMode(2, OUTPUT);
+   pinMode(5, OUTPUT);
    pinMode(A0, INPUT);
 }
 
 void loop() {
   k = millis()/(4*tau*1000);
-  digitalWrite(2,k%2);
+  //digitalWrite(5,k%2);
+  analogWrite(5,255*(k%2));
   Serial.println(analogRead(A0));
 }
