@@ -16,6 +16,7 @@ bool stepped = 0;
 
 // Abtastzeit
 float ta = 0.1;
+int K = 2;
 
 // Parameter der simulierten Strecke
 int t1 = 2;
@@ -43,9 +44,9 @@ void loop() {
   // Sollgröße messen
   // w = analogRead(wInPin);
   // Sollgröße vorgeben
-  
-//  Serial.print("w ");
-  
+
+  // Serial.print("w ");
+
   if(millis()<=1000)
   {
     Serial.print(0);
@@ -68,30 +69,31 @@ void loop() {
 
   // simulierte Strecke: PT1-Algorithmus
   x_alt = x;
-  x = (t1/(t1+ta))*x_alt+(ta/(t1+ta))*y;
+  x = (t1/(t1+ta))*x_alt+K*(ta/(t1+ta))*y;
+  //  x = 0.8*x_alt+0.2*y;
 
-//  Serial.print(", x ");
+  // Serial.print(", x ");
   Serial.print(", ");
   Serial.print(x);
 
   // Stellfehler berechnen
   e_alt = e;
   e = w - x;
-//Serial.print(", e ");
+  // Serial.print(", e ");
   Serial.print(", ");
   Serial.print(e);
 
   // ACHTUNG: Der Arduino-eigene DAC kann nur positive Werte für y ausgeben!
   // Dies macht ein direktes Regeln unmöglich
-  
+
   // Regler: PI-Algorithmus, um Stellgröße zu berechnen
   y_alt = y;
   y = y_alt + c1*e - c2*e_alt;
-  
+
   // Wenn man nur die Strecke betrachten möchte
   // y = w;
 
-//  Serial.print(", y ");
+  // Serial.print(", y ");
   Serial.print(", ");
   Serial.println(y);
 
