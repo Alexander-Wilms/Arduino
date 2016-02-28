@@ -23,8 +23,12 @@ int t1 = 2;
 
 // Koeffizienten des PI-Reglers
 // Mit Simulink PID Tuner bestimmt
-float Kp = 3.37;
-float Ki = 1.4;
+float Kp = 0.185457514040232;
+float Ki = 1.55640804377475;
+// Rechteckregel:
+// float c1 = Kp;
+// float c2 = Kp-Ki*ta;
+// Trapezregel:
 float c1 = Kp+(Ki*ta)/2;
 float c2 = Kp-(Ki*ta)/2;
 
@@ -44,9 +48,9 @@ void loop() {
   // Sollgröße messen
   // w = analogRead(wInPin);
   // Sollgröße vorgeben
-
+  
   // Serial.print("w ");
-
+  
   if(millis()<=1000)
   {
     Serial.print(0);
@@ -85,11 +89,11 @@ void loop() {
 
   // ACHTUNG: Der Arduino-eigene DAC kann nur positive Werte für y ausgeben!
   // Dies macht ein direktes Regeln unmöglich
-
+  
   // Regler: PI-Algorithmus, um Stellgröße zu berechnen
   y_alt = y;
   y = y_alt + c1*e - c2*e_alt;
-
+  
   // Wenn man nur die Strecke betrachten möchte
   // y = w;
 
