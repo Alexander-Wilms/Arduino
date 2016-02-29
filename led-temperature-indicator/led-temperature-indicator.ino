@@ -52,13 +52,13 @@ float altitude;
 void setup()
 {
   pinMode(2, OUTPUT); // Only needed to power the LED, since I don't have a breadboard and thus can't connect two devices in parallel to the 3.3V pin
-  digitalWrite(2,HIGH);
+  digitalWrite(2, HIGH);
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
   pinMode(11, OUTPUT);
   Serial.begin(9600);
   Wire.begin();
-  // read calibration data from the EEPROM of the bMP180
+  // read calibration data from the EEPROM of the bmp180
   calibrate();
 }
 
@@ -118,38 +118,6 @@ long readUncompTemp()
   return uncompensatedTemperature;
 }
 
-long readUncompPress()
-{
-  unsigned char MSB, LSB, XLSB;
-  long uncompensatedPressure = oss;
-
-  Wire.beginTransmission(bmp180_address);
-  Wire.write(0xF4);
-  Wire.write(0x34);
-  Wire.endTransmission();
-
-  // wait for conversion, delay time dependent on oss
-  delay(5);
-
-  // read register 0xF6 (MSB), 0xF7 (LSB), and 0xF8 (XLSB)
-  Wire.beginTransmission(bmp180_address);
-  Wire.write(0xF6);
-  Wire.endTransmission();
-  Wire.requestFrom(bmp180_address, 3);
-
-  // wait for data to become available
-  while(Wire.available() < 3)
-    ;
-
-  MSB = Wire.read();
-  LSB = Wire.read();
-  XLSB = Wire.read();
-
-  uncompensatedPressure = (((unsigned long) MSB << 16) | ((unsigned long) LSB << 8) | (unsigned long) XLSB) >> (8);
-
-  return uncompensatedPressure;
-}
-
 short calcTrueTemp(unsigned int uncompensatedTemperature)
 {
   long x1, x2;
@@ -159,55 +127,6 @@ short calcTrueTemp(unsigned int uncompensatedTemperature)
   b5 = x1 + x2;
 
   return ((b5 + 8)>>4);
-}
-
-long calcTruePress(unsigned long uncompensatedPressure)
-{
-  long x1, x2, x3, b3, b6, p;
-  unsigned long b4, b7;
-
-  b6 = b5 - 4000;
-
-  // Calculate b3
-  x1 = (b2 * (b6 * b6)>>12)>>11;
-  x2 = (ac2 * b6)>>11;
-  x3 = x1 + x2;
-  b3 = (((((long)ac1)*4 + x3)<<oss) + 2)>>2;
-
-  // Calculate b4
-  x1 = (ac3 * b6)>>13;
-  x2 = (b1 * ((b6 * b6)>>12))>>16;
-  x3 = ((x1 + x2) + 2)>>2;
-  b4 = (ac4 * (unsigned long)(x3 + 32768))>>15;
-
-  b7 = ((unsigned long)(uncompensatedPressure - b3) * (50000>>oss));
-  if (b7 < 0x80000000)
-    p = (b7<<1)/b4;
-  else
-    p = (b7/b4)<<1;
-
-  x1 = (p>>8) * (p>>8);
-  x1 = (x1 * 3038)>>16;
-  x2 = (-7357 * p)>>16;
-  p += (x1 + x2 + 3791)>>4;
-
-  return p;
-}
-
-// Read 1 byte from the bmp180 at 'address'
-char bmp180Readbyte(unsigned char address)
-{
-  unsigned char data;
-
-  Wire.beginTransmission(bmp180_address);
-  Wire.write(address);
-  Wire.endTransmission();
-
-  Wire.requestFrom(bmp180_address, 1);
-  while(!Wire.available())
-    ;
-
-  return Wire.read();
 }
 
 // read 2 bytes from the bmp180
@@ -226,11 +145,4 @@ int bmp180Read2bytes(unsigned char address)
   LSB = Wire.read();
 
   return (int) MSB<<8 | LSB;
-}
-
-float calcAltitude(float pressure)
-{
-  // international barometric formula
-  // https://de.wikipedia.org/wiki/Barometrische_H%C3%B6henformel#Internationale_H.C3.B6henformel
-  return (float)288.15/0.0065 * (1 - pow(((float) pressure/p0), (float)1/5.255));
 }
