@@ -9,7 +9,9 @@ int T1 = 3;
 int t = 0;
 
 void setup() {
-  pinMode(5, OUTPUT);
+  // PWM using pins 5 or 6 is less precise than using the other PWM pins
+  // cf. https://www.arduino.cc/en/Reference/AnalogWrite
+  pinMode(3, OUTPUT);
   Serial.begin(9600);
 }
 
@@ -18,7 +20,7 @@ void loop() {
   Serial.print(x_out);
   Serial.print(",");
   
-  analogWrite(5, x_out);
+  analogWrite(3, x_out);
   
   // read the input on analog pin 0:
   x_in[0] = analogRead(A0);
