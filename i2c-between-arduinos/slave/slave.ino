@@ -14,8 +14,6 @@ void loop() {
   delay(100);
 }
 
-// function that executes whenever data is received from master
-// this function is registered as an event, see setup()
 void receiveEvent(int bytes)
 {
   while(Wire.available() != 0)
