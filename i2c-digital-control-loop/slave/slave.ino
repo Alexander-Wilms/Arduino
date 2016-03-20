@@ -16,10 +16,10 @@ int rechenzeit;
 int t1 = 2;
 
 void setup() {
-  Wire.begin(8);                // join i2c bus with address #8
+  Wire.begin(8);                // join i2c bus as slave with address 8
   Wire.onReceive(receiveEvent); // register event
   Wire.onRequest(requestEvent); // register event
-  Serial.begin(9600);           // start serial for output
+  Serial.begin(9600);
   Serial.println("Slave");
 }
 
@@ -37,8 +37,6 @@ void loop() {
   delay(100-rechenzeit);
 }
 
-// function that executes whenever data is received from master
-// this function is registered as an event, see setup()
 void receiveEvent(int bytes)
 {
   while(Wire.available() != 0)

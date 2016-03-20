@@ -35,8 +35,8 @@ float c1 = Kp+(Ki*ta)/2;
 float c2 = Kp-(Ki*ta)/2;
 
 void setup() {
-  Wire.begin(); // join i2c bus (address optional for master)
-  Serial.begin(9600);           // start serial for output
+  Wire.begin(); // join i2c bus as master
+  Serial.begin(9600);
   Serial.println("Master");
 }
 
@@ -86,9 +86,9 @@ void loop() {
   Serial.println(y);
 
   // Stellgröße ausgeben  
-  Wire.beginTransmission(8); // transmit to device #
-  Wire.write(y);              // sends one byte
-  Wire.endTransmission();    // stop transmitting
+  Wire.beginTransmission(8);
+  Wire.write(y);
+  Wire.endTransmission();
    
   // warten, bis TA vergangen ist
   rechenzeit = millis() - t_alt;
